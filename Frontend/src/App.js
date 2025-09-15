@@ -1,49 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
+import React, { useEffect } from 'react';
 import './App.css';
+import { useUI } from './state/UIContext';
+import { NavBar } from './components/layout/NavBar';
+import { SideBar } from './components/layout/SideBar';
+import { Footer } from './components/layout/Footer';
+import { Outlet } from 'react-router-dom';
+import { Toasts } from './components/common/Toasts';
 
 // PUBLIC_INTERFACE
-function App() {
-  const [theme, setTheme] = useState('light');
+export default function App() {
+  /** Main layout wrapper with theme toggle, skip links, and global landmarks for a11y. */
+  const { theme, toggleTheme } = useUI();
 
-  // Effect to apply theme to document element
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  // PUBLIC_INTERFACE
-  const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
-  };
-
   return (
     <div className="App">
-      <header className="App-header">
-        <button 
-          className="theme-toggle" 
-          onClick={toggleTheme}
-          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-        >
-          {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
-        </button>
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <p>
-          Current theme: <strong>{theme}</strong>
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+      <a href="#main" className="sr-only-focusable">Skip to main content</a>
+      <header aria-label="Main navigation">
+        <NavBar onToggleTheme={toggleTheme} currentTheme={theme} />
       </header>
+      <div style={{ display: 'flex', minHeight: 'calc(100vh - 120px)' }}>
+        <aside aria-label="Filters and navigation" style={{ minWidth: 240 }}>
+          <SideBar />
+        </aside>
+        <main id="main" role="main" style={{ flex: 1, padding: '1rem' }}>
+          <Outlet />
+        </main>
+      </div>
+      <Footer />
+      <Toasts />
     </div>
   );
 }
-
-export default App;
